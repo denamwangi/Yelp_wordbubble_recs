@@ -1,0 +1,11 @@
+Edinburgh, , UK, edi
+Karlsruhe, , Germany, kar
+Montreal, , Canada, mon 
+Waterloo, , Canada, wat
+Pittsburgh, PA, USA, pit
+Charlotte, NC, USA, cha
+Urbana-Champaign, IL, USA, urb 
+Phoenix, AZ, USA, phx
+Las Vegas, NV, USA, lsv 
+Madison, WI, USA, mad 
+Cleveland, OH, USA, clv

@@ -23,21 +23,24 @@ class Business(db.Model):
 
     __tablename__ = "businesses"
 
-    business_id = db.Column(db.String, primary_key=True)
-    name = db.Column(db.String, nullable=False)
+    business_id = db.Column(db.String(120), primary_key=True)
+    name = db.Column(db.String(120), nullable=False)
     neighborhood = db.Column(db.String)
     address = db.Column(db.String, nullable=False)
-    city = db.Column(db.String, nullable=False)
-    state = db.Column(db.String, nullable=False)
+    
     postal_code = db.Column(db.String)
     latitude = db.Column(db.String, nullable=False)
     longitude = db.Column(db.String, nullable=False)
-    stars = db.Column(db.Float)
-    review_count = db.Column(db.Integer)
-    is_open = db.Column(db.Boolean)
-    # attributes = db.Column(db.PickleType)    # Array of attributes like parking, cash only etc
-    attr_check = db.Column(db.PickleType)    # Array- need this unpacked
+    stars = db.Column(db.Float, nullable=False)
+    review_count = db.Column(db.Integer, nullable=False)
+    is_open = db.Column(db.Boolean, nullable=False)
 
+    categories = db.relationship('Category', secondary='BusinessCategoryLocation',
+                                             backref='businesses')
+    locations = db.relationship('Location', secondary='BusinessCategoryLocation',
+                                             backref='businesses')
+    keywords = db.relationship('Keyword', secondary='BusinessCategoryLocation',
+                                             backref='businesses')
     def __repr__(self):
         """Provide helpful representation when printed."""
 
@@ -45,14 +48,104 @@ class Business(db.Model):
                                                  self.reviews)
 
 
+class Category(db.Model):
+    """Categories master list- each business can have multiple.
+        Pulling from Yelp page of all categories"""
+
+    __tablename__ = "categories"
+
+    category_id = db.Column(db.Integer, autoincrement=True)
+    category = db.Column(db.String(120), primary_key=True, nullable=False)
+    locations = db.relationship('Location', secondary='BusinessCategoryLocation',
+                                             backref='categories')
+    #business = db.relationship('Business', backref=db.backref('categories'))
+
+    def __repr__(self):
+        """Provide helpful representation when printed."""
+
+        return "<Category category_id=%s category=%s >" % (self.category_id,
+                                                           self.category)
+
+
+class Location(db.Model):
+    """Location master list- pulling from the yelp list of cities for datachallenge 9"""
+
+    __tablename__ = "locations"
+    city = db.Column(db.String(120), primary_key=True)
+    state = db.Column(db.String(10))
+    country = db.Column(db.String(64))
+    city_id = db.Column(db.String(20))
+
+    def __repr__(self):
+        """Provide helpful representation when printed."""
+
+        return "<Location category_id=%s category=%s >" % (self.city_id,
+                                                           self.city)
+
+    business = db.relationship('Business', backref=db.backref('business_category_place'))
+
+
+class BusinessCategoryLocation(db.Model):
+    """Association table linking the business category and place"""
+
+    __tablename__ = "business_category_location"
+
+    bcp_id = db.Column(db.Integer, autoincrement=True, primary_key=True)
+    business_id = db.Column(db.String(120), db.ForeignKey('businesses.business_id'), nullable=False)  # foreignkey
+    category = db.Column(db.String(120), db.ForeignKey('categories.category'), nullable=False)
+    city = db.Column(db.String(64), db.ForeignKey('locations.city'), nullable=False)
+    state = db.Column(db.String(64))
+    country = db.Column(db.String(64), nullable=False)    #country
+
+    def __repr__(self):
+        """Provide helpful representation when printed."""
+
+        return "<BusinessCategoryLocation business_id=%s category=%s >" % (self.business_id,
+                                                           self.state)
+
+
+class Keyword(db.Model):
+    """Keywords master table - each business can have multiple. These will be as
+        a result of some NLP analysis"""
+
+    __tablename__ = "keywords"
+
+    keyword_id = db.Column(db.String(15), primary_key=True)
+    keyword = db.Column(db.String(120), nullable=False)
+
+    def __repr__(self):
+        """Provide helpful representation when printed."""
+
+        return "<Keyword keyword_id=%s keyword=%s >" % (self.keyword_id,
+                                                         self.keyword)
+
+
+class BusinessKeyword(db.Model):
+    """Keywords and business association table  - each business can have multiple.
+        These will be as a result of some NLP analysis"""
+
+    __tablename__ = "businesses_keywords"
+
+    keyword_id = db.Column(db.Integer, autoincrement=True, primary_key=True)
+    business_id = db.Column(db.String(120), db.ForeignKey('businesses.business_id'), nullable=False)  # foreignkey
+    keyword_id = db.Column(db.String, db.ForeignKey('keywords.keyword_id'), nullable=False)
+    keyword_count = db.Column(db.Integer, nullable=False)
+
+    def __repr__(self):
+        """Provide helpful representation when printed."""
+
+        return "<BusinessKeyword business_id=%s keyword=%s >" % (self.business_id,
+                                                         self.keyword_count)
+
+
 class User(db.Model):
     """User data."""
 
     __tablename__ = "users"
 
-    user_id = db.Column(db.String, primary_key=True)
-    name = db.Column(db.String, nullable=False)             # first name
-    review_count = db.Column(db.Integer)
+    user_id = db.Column(db.String(120), primary_key=True)
+    name = db.Column(db.String(64), nullable=False)             # first name
+    review_count = db.Column(db.Integer, nullable=False)
     yelping_since = db.Column(db.DateTime)
     friends = db.Column(db.PickleType)                          # PickleType of friend encrypted id's
     useful = db.Column(db.Integer)
@@ -77,7 +170,7 @@ class User(db.Model):
         """Provide helpful representation when printed."""
 
         return "<User name=%s reviews=%s >" % (self.name,
-                                               self.reviews)
+                                               self.review_count)
 
 
 class Tip(db.Model):
@@ -89,11 +182,11 @@ class Tip(db.Model):
     text = db.Column(db.String, nullable=False)
     date = db.Column(db.DateTime)
     likes = db.Column(db.Integer)
-    business_id = db.Column(db.String, db.ForeignKey('businesses.business_id'), nullable=False)
-    user_id = db.Column(db.String, db.ForeignKey('users.user_id'), nullable=False)
+    business_id = db.Column(db.String(120), db.ForeignKey('businesses.business_id'), nullable=False)
+    user_id = db.Column(db.String(120), db.ForeignKey('users.user_id'), nullable=False)
     
     business = db.relationship('Business', backref=db.backref('tips', order_by=date))
-    user = db.relationship('User', backref=db.backref('tips', order_by=date))
+    user = db.relationship('User', backref=db.backref('tips'))
 
     def __repr__(self):
         """Provide helpful representation when printed."""
@@ -108,8 +201,8 @@ class Review(db.Model):
     __tablename__ = "reviews"
 
     review_id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.String, db.ForeignKey('users.user_id'), nullable=False)
-    business_id = db.Column(db.String, db.ForeignKey('businesses.business_id'), nullable=False)
+    user_id = db.Column(db.String(120), db.ForeignKey('users.user_id'), nullable=False)
+    business_id = db.Column(db.String(120), db.ForeignKey('businesses.business_id'), nullable=False)
     stars = db.Column(db.Float)
     date = db.Column(db.DateTime)
     text = db.Column(db.String, nullable=False)
@@ -127,31 +220,13 @@ class Review(db.Model):
                                                  self.useful)
 
 
-class Category(db.Model):
-    """Categories - each business can have multiple. Pulling from business json"""
-
-    __tablename__ = "categories"
-
-    cat_id = db.Column(db.Integer, autoincrement=True, primary_key=True)
-    business_id = db.Column(db.String, db.ForeignKey('businesses.business_id'), nullable=False)  # foreignkey
-    category = db.Column(db.String, nullable=False)
-
-    business = db.relationship('Business', backref=db.backref('categories'))
-
-    def __repr__(self):
-        """Provide helpful representation when printed."""
-
-        return "<Category business_id=%s likes=%s >" % (self.business_id,
-                                                        self.category)
-
-
 class Attribute(db.Model):
     """Attributes - each business can have multiple or none. Pulling from business json"""
 
     __tablename__ = "attributes"
 
     attr_id = db.Column(db.Integer, autoincrement=True, primary_key=True)
-    business_id = db.Column(db.String, db.ForeignKey('businesses.business_id'), nullable=False)  # foreignkey
+    business_id = db.Column(db.String(120), db.ForeignKey('businesses.business_id'), nullable=False)  # foreignkey
     attribute_key = db.Column(db.String, nullable=False)
     attribute_value = db.Column(db.String, nullable=False)
 
@@ -160,24 +235,13 @@ class Attribute(db.Model):
     def __repr__(self):
         """Provide helpful representation when printed."""
 
-        return "<Attribute attr_id=%s attribute=%s >" % (self.business_id,
-                                                         self.attribute)
-
-
-
+        return "<Attribute attr_id=%s attribute=%s : %s >" % (self.business_id,
+                                                              self.attribute_key,
+                                                              self.attribute_value)
 
 
 ##############################################################################
 # Helper functions
-
-# def init_app():
-#     # So that we can use Flask-SQLAlchemy, we'll make a Flask app.
-#     from flask import Flask
-#     app = Flask(__name__)
-
-#     connect_to_db(app)
-#     print "Connected to DB."
-
 
 def connect_to_db(app):
     """Connect the database to our Flask app."""
@@ -189,15 +253,11 @@ def connect_to_db(app):
     db.app = app
     db.init_app(app)
 
-# from flask import Flask
-# app = Flask(__name__)
 if __name__ == "__main__":
     # As a convenience, if we run this module interactively, it will leave
     # you in a state of being able to work with the database directly.
 
     # So that we can use Flask-SQLAlchemy, we'll make a Flask app.
-    
-
     connect_to_db(app)
     print "Connected to DB."
 

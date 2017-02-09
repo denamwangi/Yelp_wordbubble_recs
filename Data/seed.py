@@ -6,20 +6,65 @@
 
 # from sqlalchemy import func
 # import model
-from model import Review, User, Business, Tip, Category, Attribute, connect_to_db, db, app
+from model import Review, User, Business, Tip, Category, Attribute, connect_to_db, db, app, BusinessCategoryLocation, Location
+
 # # from server import app
 from datetime import datetime
+import ast
 
 
 
-"""
-TO DO LIST:
-- SET UP SEEDING IN FUNCTIONS
--INCLUDE THE COUNTERS
-"""
+
 import json
 from pprint import pprint
-def iterate_json_file(stub_name, status_frequency= 5):
+def load_categories():
+    """This parses a .txt file with all the possible categories pulled from yelp"""
+    print "categories"
+    Category.query.delete()
+    with open('yelp_categories.txt', 'r') as cat_file:
+      unique={}
+      i = 0
+      for line in cat_file:
+        cat_line=line.strip().split(' (')
+        # print cat_line[0]
+        
+        if cat_line[0] in unique:
+          pass
+        else:
+          i+=1
+          unique["%s" % cat_line[0]] = 1
+
+          category = Category(category=cat_line[0].lower(), category_id = i)
+          db.session.add(category)
+
+      db.session.commit()
+
+def load_locations():
+    """This parses a .txt file with all the cities from teh datachelenge and codes I added"""
+    print "locations"
+    Location.query.delete()
+    with open('yelp_locations.txt', 'r') as cat_file:
+      unique={}
+      i = 0
+      for line in cat_file:
+        city_line=line.strip().split(',')
+        
+        if city_line[3] in unique:
+          pass
+        else:
+          i+=1
+          unique["%s" % city_line[3]] = 1
+
+          location = Location(city=city_line[0].lower(),
+                              state = city_line[1].lower(),
+                              country = city_line[2].lower(),
+                              city_id= city_line[3].lower())
+          db.session.add(location)
+
+      db.session.commit()
+
+
+def iterate_json_file(stub_name, status_frequency= 500):
     i= 0
     with open('yelp_academic_dataset_%s.json' % stub_name, 'r') as f:
         for line in f:
@@ -29,51 +74,80 @@ def iterate_json_file(stub_name, status_frequency= 5):
             yield json.loads(line)                  
             if i % status_frequency == 0:
                 print("Status >>> : %d" % (i))
-                if i == 10:
-                    raise StopIteration()
+                # if i == 300:
+                #     raise StopIteration()
 
 
 def load_businesses():
     print "Businesses"
     Attribute.query.delete()
-    Category.query.delete()
+    BusinessCategoryLocation.query.delete()
     Business.query.delete()
 
     c=0
     for bdata in iterate_json_file('business'):             # get a dictionary back
         c += 1
-        business= Business(business_id=bdata['business_id'],
+        business = Business(business_id=bdata['business_id'],
                            name=bdata['name'],
                            neighborhood=bdata['neighborhood'],
                            address=bdata['address'],
-                           city=bdata['city'],
-                           state=bdata['state'],
                            postal_code=bdata['postal_code'],
                            latitude=bdata['latitude'],
                            longitude=bdata['longitude'],
                            stars=bdata['stars'],
                            review_count=bdata['review_count'],
-                           attr_check=bdata['attributes'],
                             is_open=True if bdata['is_open'] == 1 else False)
-        print "ATTRIBUTES:", bdata['attributes']
+        # print "ATTRIBUTES:", bdata['attributes']
 
         #Pull out categories here and add create an instance of the Category class
-        for each_item in bdata['categories']:
-            category = Category(business_id=bdata['business_id'],
-                                category=each_item)
-            db.session.add(category)
+        if bdata['categories']:
+          for each_item in bdata['categories']:
+              # print bdata['categories']
+              businesscategorylocation = BusinessCategoryLocation(business_id=bdata['business_id'],
+                                  city=bdata['city'],
+                                  state=bdata['state'],
+                                  category=each_item.lower())
+        else:
+            businesscategorylocation = BusinessCategoryLocation(business_id=bdata['business_id'],
+                                city=bdata['city'],
+                                state=bdata['state'],
+                                )
+            # db.session.add(businesscategorylocation)
 
         #Pull out attributes here and add create an instance of the Category class
-        for each_item in bdata['attributes']:
-            attribute = Attribute(business_id=bdata['business_id'],
-                                  attribute_key=each_item.split(':')[0],
-                                  attribute_value=each_item.split(':')[1])
-            print attribute_key, attribute_value
-            db.session.add(attribute)
+        if bdata['attributes']:
+          for each_item in bdata['attributes']:
+            attribute_key=each_item.split(':',1)[0]
+            attribute_value=each_item.split(':', 1)[1]
+
+            #case where the value is a string in the form of a dictionary
+            # Good for meal, ambiance, HairSpecializesIn
+
+            if attribute_key in ['HairSpecializesIn', 'Ambience', 'GoodForMeal']:
+              attribute_value = attribute_value.replace('{', '').replace('}', '').replace("'", '')
+              parsed_value = attribute_value.split(',')
+
+              #Now each item in the list is a string key: val pair. Will need to split again
+              # then the first index contains the key and second index contains the value
+              for subkeyval_pair in parsed_value:
+                subkeyval_pair = subkeyval_pair.strip().split(':')
+                # print subkeyval_pair[0], subkeyval_pair[1]
+                if subkeyval_pair[1].strip() != "False" and subkeyval_pair[1].strip() != "none" and subkeyval_pair[1].strip() != "no":
+                  # print subkeyval_pair[1], type(subkeyval_pair[1])
+                  attribute = Attribute(business_id=bdata['business_id'],
+                                      attribute_key=subkeyval_pair[0].strip(),
+                                      attribute_value=subkeyval_pair[1].strip())
+                  db.session.add(attribute)
+
+            #Case where it a key and value pair where the value is a single item
+            elif attribute_value.strip()!= "False" and attribute_value.strip()!= "none" and attribute_key.strip()!="BusinessParking" and attribute_value.strip()!= "no":
+              attribute = Attribute(business_id=bdata['business_id'],
+                                  attribute_key=attribute_key.strip(),
+                                  attribute_value=attribute_value.strip())
+              db.session.add(attribute)
 
         db.session.add(business)
-
-    db.session.commit()
+        db.session.commit()
 
 
 def load_users():
@@ -105,7 +179,7 @@ def load_users():
                    compliment_writer=udata['compliment_writer'],
                    compliment_photos=udata['compliment_photos'])
         db.session.add(user)
-
+        # print "Success", udata['user_id']
     db.session.commit()
 
 def load_tips():
@@ -121,6 +195,7 @@ def load_tips():
                 user_id=tdata['user_id'])
         db.session.add(tip)
 
+
     db.session.commit()
 
 def load_reviews():
@@ -130,14 +205,14 @@ def load_reviews():
     for rdata in iterate_json_file('review'):             # get a dictionary back
         c += 1
         review = Review(review_id=rdata['review_id'],
-                      user_id=rdata['user_id'], 
-                      business_id=rdata['business_id'],
-                      stars=rdata['stars'],
-                      date=datetime_conversion(rdata['date']),
-                      text=rdata['text'],
-                      useful=rdata['useful'],
-                      funny=rdata['funny'],
-                      cool=rdata['cool'], )
+                        user_id=rdata['user_id'], 
+                        business_id=rdata['business_id'],
+                        stars=rdata['stars'],
+                        date=datetime_conversion(rdata['date']),
+                        text=rdata['text'],
+                        useful=rdata['useful'],
+                        funny=rdata['funny'],
+                        cool=rdata['cool'], )
         db.session.add(review)
 
     db.session.commit()
@@ -162,8 +237,11 @@ if __name__ == "__main__":
     # db.init_app(app)
     connect_to_db(app)
     db.create_all()
-    load_businesses()
-    load_users()
+    load_categories()
+    load_locations()
+    # load_businesses()
+    # load_users()
+    # load_reviews()
     # load_tips()
     print "After loading businesses fingers crossed!"
 #     # As a convenience, if we run this module interactively, it will leave
