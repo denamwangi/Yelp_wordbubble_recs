@@ -1,0 +1,20 @@
+<!doctype html>
+<html>
+<head>
+  <title>Bubble Matches!</title>
+</head>
+
+<body>
+<script src="https://code.jquery.com/jquery.js"></script>
+  
+Hello WOrlds from the Base!!
+
+  <ul>{% for message in get_flashed_messages() %}
+        <li>{{ message }}</li>
+        {% endfor %}
+    </ul>
+  
+  {% block content %} put your content here {% endblock %}
+
+</body>
+</html>
