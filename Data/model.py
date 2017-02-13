@@ -29,18 +29,16 @@ class Business(db.Model):
     address = db.Column(db.String, nullable=False)
     
     postal_code = db.Column(db.String)
-    latitude = db.Column(db.String, nullable=False)
-    longitude = db.Column(db.String, nullable=False)
+    latitude = db.Column(db.Float, nullable=False)
+    longitude = db.Column(db.Float, nullable=False)
     stars = db.Column(db.Float, nullable=False)
     review_count = db.Column(db.Integer, nullable=False)
     is_open = db.Column(db.Boolean, nullable=False)
 
-    categories = db.relationship('Category', secondary='BusinessCategoryLocation',
+    categories = db.relationship('Category', secondary='business_category_location',
                                              backref='businesses')
-    locations = db.relationship('Location', secondary='BusinessCategoryLocation',
-                                             backref='businesses')
-    keywords = db.relationship('Keyword', secondary='BusinessCategoryLocation',
-                                             backref='businesses')
+
+
     def __repr__(self):
         """Provide helpful representation when printed."""
 
@@ -56,10 +54,10 @@ class Category(db.Model):
 
     category_id = db.Column(db.Integer, autoincrement=True)
     category = db.Column(db.String(120), primary_key=True, nullable=False)
-    locations = db.relationship('Location', secondary='BusinessCategoryLocation',
-                                             backref='categories')
-    #business = db.relationship('Business', backref=db.backref('categories'))
-
+    
+    # locations = db.relationship('Location', secondary='business_category_place',
+    #                                          backref='categories')
+    
     def __repr__(self):
         """Provide helpful representation when printed."""
 
@@ -72,9 +70,11 @@ class Location(db.Model):
 
     __tablename__ = "locations"
     city = db.Column(db.String(120), primary_key=True)
-    state = db.Column(db.String(10))
-    country = db.Column(db.String(64))
+    state = db.Column(db.String(10)),
     city_id = db.Column(db.String(20))
+
+    businesses = db.relationship('Business', secondary='business_category_location',
+                                             backref='locations')
 
     def __repr__(self):
         """Provide helpful representation when printed."""
@@ -82,20 +82,20 @@ class Location(db.Model):
         return "<Location category_id=%s category=%s >" % (self.city_id,
                                                            self.city)
 
-    business = db.relationship('Business', backref=db.backref('business_category_place'))
-
-
 class BusinessCategoryLocation(db.Model):
     """Association table linking the business category and place"""
 
     __tablename__ = "business_category_location"
 
-    bcp_id = db.Column(db.Integer, autoincrement=True, primary_key=True)
-    business_id = db.Column(db.String(120), db.ForeignKey('businesses.business_id'), nullable=False)  # foreignkey
+    bcl_id = db.Column(db.Integer, autoincrement=True, primary_key=True)
+    business_id = db.Column(db.String(120), 
+                            db.ForeignKey('businesses.business_id'), 
+                            nullable=False)  # foreignkey
     category = db.Column(db.String(120), db.ForeignKey('categories.category'), nullable=False)
-    city = db.Column(db.String(64), db.ForeignKey('locations.city'), nullable=False)
+    city = db.Column(db.String(120),
+                     db.ForeignKey('locations.city'),
+                     nullable=False)
     state = db.Column(db.String(64))
-    country = db.Column(db.String(64), nullable=False)    #country
 
     def __repr__(self):
         """Provide helpful representation when printed."""
@@ -113,6 +113,8 @@ class Keyword(db.Model):
     keyword_id = db.Column(db.String(15), primary_key=True)
     keyword = db.Column(db.String(120), nullable=False)
 
+    businesses = db.relationship('Business', secondary='businesses_keywords',
+                                             backref='keywords')
     def __repr__(self):
         """Provide helpful representation when printed."""
 
@@ -126,9 +128,9 @@ class BusinessKeyword(db.Model):
 
     __tablename__ = "businesses_keywords"
 
-    keyword_id = db.Column(db.Integer, autoincrement=True, primary_key=True)
+    buskey_id = db.Column(db.Integer, autoincrement=True, primary_key=True)
     business_id = db.Column(db.String(120), db.ForeignKey('businesses.business_id'), nullable=False)  # foreignkey
-    keyword_id = db.Column(db.String, db.ForeignKey('keywords.keyword_id'), nullable=False)
+    keyword_id = db.Column(db.String(15), db.ForeignKey('keywords.keyword_id'), nullable=False)
     keyword_count = db.Column(db.Integer, nullable=False)
 
     def __repr__(self):
@@ -200,7 +202,7 @@ class Review(db.Model):
 
     __tablename__ = "reviews"
 
-    review_id = db.Column(db.Integer, primary_key=True)
+    review_id = db.Column(db.String, primary_key=True)
     user_id = db.Column(db.String(120), db.ForeignKey('users.user_id'), nullable=False)
     business_id = db.Column(db.String(120), db.ForeignKey('businesses.business_id'), nullable=False)
     stars = db.Column(db.Float)
