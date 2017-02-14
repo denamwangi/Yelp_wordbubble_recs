@@ -3,7 +3,20 @@
 
 <h1>Let's PLay!</h1>
 
-Hellooo World from the Bubble page!!
+Hellooo World from the Bubble page for {{ state }} {{ category }}!!
+
+<script>
+function printYay(){
+    console.log("yay")
+}
+
+var returnOptions = {
+    "location" : $(.state).val()
+};
+
+$.get("/bubble_match", returnOptions, printYay);
+</script>
+
 {% endblock %}
 
 <h2>Movies</h2>
