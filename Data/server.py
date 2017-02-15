@@ -35,6 +35,7 @@ def keyword_choice():
                             state=state, 
                             category=category)
 
+
 @app.route('/results')
 def results():
     """results with personalized recommendations."""
