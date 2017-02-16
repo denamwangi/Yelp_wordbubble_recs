@@ -1,4 +1,4 @@
-"""Movie Ratings."""
+"""YelpMe Reviews."""
 
 from jinja2 import StrictUndefined
 
