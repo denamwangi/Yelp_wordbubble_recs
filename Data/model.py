@@ -110,7 +110,7 @@ class Keyword(db.Model):
 
     __tablename__ = "keywords"
 
-    keyword_id = db.Column(db.String(15), primary_key=True)
+    keyword_id = db.Column(db.Integer, primary_key=True, autoincrement=True,)
     keyword = db.Column(db.String(120), nullable=False)
 
     businesses = db.relationship('Business', secondary='businesses_keywords',
@@ -130,14 +130,48 @@ class BusinessKeyword(db.Model):
 
     buskey_id = db.Column(db.Integer, autoincrement=True, primary_key=True)
     business_id = db.Column(db.String(120), db.ForeignKey('businesses.business_id'), nullable=False)  # foreignkey
-    keyword_id = db.Column(db.String(15), db.ForeignKey('keywords.keyword_id'), nullable=False)
+    keyword_id = db.Column(db.Integer, db.ForeignKey('keywords.keyword_id'), nullable=False)
     keyword_count = db.Column(db.Integer, nullable=False)
-
+    # summary = db.Column(db.String)
     def __repr__(self):
         """Provide helpful representation when printed."""
 
         return "<BusinessKeyword business_id=%s keyword=%s >" % (self.business_id,
                                                          self.keyword_count)
+
+
+class CategoryKeyword(db.Model):
+    """Category Keywords association table  - each category can have multiple.
+        These will be as a result of some NLP analysis"""
+
+    __tablename__ = "category_keywords"
+
+    catkey_id = db.Column(db.Integer, autoincrement=True, primary_key=True)
+    category_id = db.Column(db.String(120), nullable=False) 
+    keyword_id = db.Column(db.Integer, db.ForeignKey('keywords.keyword_id'), nullable=False)
+    keyword_count = db.Column(db.Integer, nullable=False)
+    # summary = db.Column(db.String)
+    def __repr__(self):
+        """Provide helpful representation when printed."""
+
+        return "<CategoryKeyword business_id=%s keyword=%s >" % (self.business_id,
+                                                         self.keyword_count)
+
+
+class BusinessSummary(db.Model):
+    """Summary and business association table  - each business can have 1 summary.
+        These will be as a result of some NLP analysis with pytextrank"""
+
+    __tablename__ = "businesses_summaries"
+
+    summ_id = db.Column(db.Integer, autoincrement=True, primary_key=True)
+    business_id = db.Column(db.String(120), db.ForeignKey('businesses.business_id'), nullable=False)  # foreignkey
+    summary = db.Column(db.String)
+    def __repr__(self):
+        """Provide helpful representation when printed."""
+
+        return "<BusinessSummary business_id=%s summ_id=%s >" % (self.business_id,
+                                                         self.summ_id)
 
 
 class User(db.Model):
@@ -260,6 +294,8 @@ if __name__ == "__main__":
     # you in a state of being able to work with the database directly.
 
     # So that we can use Flask-SQLAlchemy, we'll make a Flask app.
+    
     connect_to_db(app)
+    db.create_all()
     print "Connected to DB."
 

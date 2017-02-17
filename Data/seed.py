@@ -195,7 +195,7 @@ def load_users():
 
 def load_tips():
   print "Tips"
-  Tip.query.delete()
+  # Tip.query.delete()
   c=0
   for tdata in iterate_json_file('tip'):             # get a dictionary back
         
