@@ -5,3 +5,4 @@ Data/*json
 Data/*tar
 Data/*pyc
 Data/*project_tracker.xlsx
+secrets.sh
