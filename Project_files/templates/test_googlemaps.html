@@ -6,8 +6,7 @@
 
     <div id="map"></div>
 
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDM8o4QXXEl_KvhpVuTL9S5OV-47bqQa80&callback=initMap"
-    async defer></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDM8o4QXXEl_KvhpVuTL9S5OV-47bqQa80&callback=initMap" async defer></script>
 
 
     <script type="text/javascript">
@@ -69,33 +68,31 @@
 
 
     function formatMarker(myLatLng) {
-      Adds t
-  // var myImageURL = 'https://developers.google.com/maps/documentation/javascript/examples/full/images/beachflag.png';
-
+      // Creates the actual google maps object that will be added to the map
       var marker = new google.maps.Marker({
               position: myLatLng,
               map: map,
-              title: 'Hello World!',
             });
       
         return marker; 
       }
 
-function addInfoWindow(marker, markerInfo) {
+  function addInfoWindow(marker, markerInfo) {
+    //Creates an info window that will display the name of the restaurant (or number?)
 
-  var contentString = '<div id="content">' +
-    '<h1>'+markerInfo+'</h1>' +
-    '</div>';
+    var contentString = '<div id="content">' +
+      '<h1>'+markerInfo+'</h1>' +
+      '</div>';
 
-  var infoWindow = new google.maps.InfoWindow({
-    content: contentString,
-    maxWidth: 200
-  });
+    var infoWindow = new google.maps.InfoWindow({
+      content: contentString,
+      maxWidth: 100
+    });
 
-  marker.addListener('click', function() {
-    infoWindow.open(map, marker);
-  });
-}
+    marker.addListener('click', function() {
+      infoWindow.open(map, marker);
+    });
+  }
     </script>
 
 
