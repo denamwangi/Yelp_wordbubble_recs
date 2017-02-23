@@ -1,0 +1,147 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+
+
+    <div id="map"></div>
+
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDM8o4QXXEl_KvhpVuTL9S5OV-47bqQa80&callback=initMap"
+    async defer></script>
+
+
+    <script type="text/javascript">
+    var map;
+
+    // var centerMapinit = new google.maps.LatLng(40.64317, -79.4066254);
+    function initMap(centerMap={lat: 43.64317, lng: -79.4066254}) {
+        // var centerMap = {lat: 43.64317, lng: -79.4066254}; 
+        // var centerMap = new google.maps.LatLng(40.64317, -79.4066254);
+        console.log('init map has been called');
+        // debugger;
+          
+        map = new google.maps.Map(document.getElementById('map'), {
+          center: centerMap,
+          zoom: 10,
+        });
+
+        // addMarker();
+
+      }
+
+    // addMarker();
+
+
+    function showResults(results){
+                    console.log("yay");
+                    console.log(results);
+                    businesses = results;
+                    addMarker(businesses);
+    };
+
+
+    $.get('/restaurants_search.json',  showResults );
+  
+
+
+
+    function addMarker(businesses){
+      // Adds the markers for each restaurant and adds an info window to each. First pulls the lat, longs and other info from the json then formats it for 
+      // google maps, and  creates an info window
+            
+         // 1) Pull the data and iterate over each business' json
+            for (var business in businesses) { 
+                latitude = businesses[business]['latitude']
+                longitude = businesses[business]['longitude']
+                var markerInfo = businesses[business]['name']+ 'is'+businesses[business]['stars']
+                var location = {lat: latitude, lng: longitude};
+
+
+          // 2)  Create the actual marker
+                newMarker= formatMarker(location);
+
+          // Add the info window on each marker
+                addInfoWindow(newMarker, markerInfo )
+
+
+        }
+    }
+
+
+    function formatMarker(myLatLng) {
+      Adds t
+  // var myImageURL = 'https://developers.google.com/maps/documentation/javascript/examples/full/images/beachflag.png';
+
+      var marker = new google.maps.Marker({
+              position: myLatLng,
+              map: map,
+              title: 'Hello World!',
+            });
+      
+        return marker; 
+      }
+
+function addInfoWindow(marker, markerInfo) {
+
+  var contentString = '<div id="content">' +
+    '<h1>'+markerInfo+'</h1>' +
+    '</div>';
+
+  var infoWindow = new google.maps.InfoWindow({
+    content: contentString,
+    maxWidth: 200
+  });
+
+  marker.addListener('click', function() {
+    infoWindow.open(map, marker);
+  });
+}
+    </script>
+
+
+
+
+    
+
+{% endblock %}
+
+<!-- 
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Simple Map</title>
+    <meta name="viewport" content="initial-scale=1.0">
+    <meta charset="utf-8">
+    <style>
+      /* Always set the map height explicitly to define the size of the div
+       * element that contains the map. */
+      #map {
+        height: 100%;
+      }
+      /* Optional: Makes the sample page fill the window. */
+      html, body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+      }
+    </style>
+  </head>
+
+
+
+  <body>
+    <div id="map"></div>
+    <script>
+      var map;
+      function initMap() {
+        map = new google.maps.Map(document.getElementById('map'), {
+          center: {lat: -34.397, lng: 150.644},
+          zoom: 8
+        });
+      }
+    </script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDM8o4QXXEl_KvhpVuTL9S5OV-47bqQa80&callback=initMap"
+    async defer></script>
+  </body>
+</html> -->

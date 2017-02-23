@@ -3,11 +3,12 @@
 #project.
 
 """Utility file to seed ratings database from MovieLens data in seed_data/"""
-from model import User, Business, Category, Location, BusinessCategoryLocation, Attribute, Review, Tip, Keyword, BusinessKeyword, connect_to_db, db, app
+from model import User, Business, Category, Location, BusinessCategoryLocation, BusinessPicture, Attribute, Review, Tip, Keyword, BusinessKeyword, connect_to_db, db, app
 from datetime import datetime
 import ast
 import json
 from pprint import pprint
+import re
 # # from server import app
 
 
@@ -33,12 +34,65 @@ def load_categories():
 
 def iterate_json_file(stub_name, status_frequency= 500):
     i= 0
-    with open('yelp_academic_dataset_%s.json' % stub_name, 'r') as f:
+    with open('data/yelp_academic_dataset_%s.json' % stub_name, 'r') as f:
         for line in f:
             i += 1
             yield json.loads(line)               
             if i % status_frequency == 0:
                 print("Status >>> : %d" % (i))
+
+def load_pics():
+  print "Pictures"
+  c=0
+  with open('data/yelp_academic_dataset_photo.json', 'r') as f:             # get a dictionary back
+    #NEED SOME REGEX TO MAKE THIS WORK HERE. ITS ONE LONG STRING
+    for line in f:
+      new_line = re.sub("\[", '', line)
+      new_line = re.sub('\]$', '', new_line)
+    ##FIRST REPLACE THE BEGINING AND END [ ]
+
+    ##THEN SPLIT IT UP INTO EACH SECTION STARTING WITH  { - COULDNT GET THIS RIGHT
+    ##PATCHWORK HERE TO MAKE IT WORK
+      split_string = re.split('{?},', new_line)
+      # print "SPLIT MEEEEE ", split_string[2]
+      #check on that last closing } that I couldnt figureout how to keep 
+      for each_item in split_string:
+        has_curly_brace = re.search('}$', each_item)
+        # print has_curly_brace
+        if has_curly_brace:
+          fixed_string = re.sub("\[", "", each_item)
+          fixed_string = "'"+fixed_string+"'"
+        else:
+          fixed_string = re.sub("\[", "", each_item)
+          fixed_string = "'"+fixed_string+'}'+"'"
+
+        # return fixed_string
+        pdata = json.loads(fixed_string[1:-1])
+        # import pdb; pdb.set_trace()
+        # print pdata['photo_id']
+
+
+        
+        picture_exist = BusinessPicture.query.filter_by(business_id=pdata['business_id'])
+        business_exist = Business.query.filter_by(business_id=pdata['business_id'])
+        if business_exist.first():
+          if picture_exist.first():
+            print 'PICTURE EXISTS'
+
+          elif c<300:
+            print 'ADD NEW PICTURE'
+            c += 1
+            picture = BusinessPicture(picture=pdata['photo_id'],
+                                      business_id=pdata['business_id'],
+                                      caption=pdata['caption'],
+                                      label=pdata['label'])
+            db.session.add(picture)
+
+
+            db.session.commit()
+        else:
+          print "BUSINESS DOES NOT EXIST ", pdata['business_id']
+
 
 
 def load_businesses():
@@ -247,35 +301,39 @@ def load_reviews():
 
 def datetime_conversion(datestring):
   """Converts our string dates to date time objects"""
-    try: 
-        date_object = datetime.strptime(datestring, '%Y-%b-%d').date()
-        return date_object
-    except ValueError:
-        return
+  try: 
+      date_object = datetime.strptime(datestring, '%Y-%b-%d').date()
+      return date_object
+  except ValueError:
+      return
 
 if __name__ == "__main__":
     # db.app=app
     # db.init_app(app)
     connect_to_db(app)
     db.create_all()
-    print "LOAD CATEGORIES NOW"
-    load_categories()
-    print "DONE LOADING CATEGORIES"
+    # print "LOAD CATEGORIES NOW"
+    # load_categories()
+    # print "DONE LOADING CATEGORIES"
 
-    print "LOAD BUSINESSES"
-    load_businesses()
-    print "DONE LOADING BUSINESSES"
+    # print "LOAD BUSINESSES"
+    # load_businesses()
+    # print "DONE LOADING BUSINESSES"
 
-    print "LOAD USERS"
-    load_users()
-    print "LOAD USERS"
+    # print "LOAD USERS"
+    # load_users()
+    # print "LOAD USERS"
 
-    print "LOAD REVIEWS"
-    load_reviews()
-    print "LOAD REVIEWS"
+    # print "LOAD REVIEWS"
+    # load_reviews()
+    # print "LOAD REVIEWS"
 
-    print "LOAD TIPS"
-    load_tips()
-    print "LOAD TIPS"
+    # print "LOAD TIPS"
+    # load_tips()
+    # print "LOAD TIPS"
+
+    # print "LOAD PICS"
+    # load_pics()
+    # print "LOAD PICS"
 
     print "After loading EVERYTHING fingers crossed!!"

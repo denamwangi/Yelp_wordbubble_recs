@@ -11,7 +11,7 @@ import pytextrank           #Pulling in the pytext rank functions for each step.
 from flask_sqlalchemy import SQLAlchemy
 from json import dumps
 from flask import Flask
-from model import User, Business, Category, Location, BusinessCategoryLocation, Attribute, Review, Tip, Keyword, BusinessKeyword, BusinessSummary, CategoryKeyword, connect_to_db, db, app
+from model import User, Business, Category, Location, BusinessCategoryLocation, Attribute, Review, Tip, Keyword, BusinessKeyword, BusinessSummary,  connect_to_db, db, app
 DEBUG = False # True
 
 if __name__ == "__main__":
@@ -24,18 +24,19 @@ if __name__ == "__main__":
 
 
 
-Pull all the reviews from teh database for each restaurant and make that the relevant
-"corpus" or "document" that we will be analyzing for keywords.
+# Pull all the reviews from teh database for each restaurant and make that the relevant
+# "corpus" or "document" that we will be analyzing for keywords.
 
-get all the businesses with a review
-Will do this for all cities but going to start with Toronto
+# get all the businesses with a review
+# Will do this for all cities but going to start with Toronto
 businesses = (db.session.query(Review.business_id).
               join(BusinessCategoryLocation, Review.business_id == BusinessCategoryLocation.business_id).
-              filter_by(city='Toronto', category='dinner').
+              filter_by(city='Toronto', category='casual').
               group_by(Review.business_id).all())
+print "HEEEEERE", businesses
 i = 0
-BusinessKeyword.query.delete()
-BusinessSummary.query.delete()   
+# BusinessKeyword.query.delete()
+# BusinessSummary.query.delete()   
 for business in businesses:
     if i<30:
         i += 1
@@ -90,7 +91,7 @@ for business in businesses:
 
                     new_keyword = Keyword(keyword = keyword)
                     db.session.add(new_keyword)
-                    db.session.commit()
+                    # db.session.commit()
                     print "Doesnt exist so added: ",new_keyword
 
 
@@ -103,104 +104,16 @@ for business in businesses:
                                                         keyword_id= keyword_id,
                                                         keyword_count=20)
                 
-                summary_entry = BusinessSummary(business_id=business.business_id,
-                                                summary = pytextrank_results['summary'])
+                
+                                                
                 db.session.add(businesskeyword_entry)
-                db.session.add(summary_entry)
-                db.session.commit()
+        summary_entry = BusinessSummary(business_id=business.business_id,
+                                        summary = pytextrank_results['summary'])
+        db.session.add(summary_entry)
+        db.session.commit()
 
                 # print keyword_id, keyword
                 
 
     else:
         break
-
-
-# ***************
-# *** #CATEGORY
-# ***************
-# reviews = db.session.query(Review).\
-#             join(BusinessCategoryLocation, \
-#             Review.business_id==BusinessCategoryLocation.business_id).\
-#             filter_by( category='dinner', city='Toronto').all()
-
-# CategoryKeyword.query.delete()   
-
-
-# reviews_list = []    #the list currently is of sql collection objects not strings. Need to unpack each
-# reviews_json =collections.OrderedDict()     # textrank needs corpus in json form
-# reviews_corpus = ''
-# for review in reviews :
-#     # reviews_list.append(review.text)
-#     reviews_corpus +=review.text
-# # reviews_corpus = ''.join(reviews_list)
-# # reviews_corpus.strip().replace('\n', '')
-# reviews_corpus = unicodedata.normalize('NFD', reviews_corpus)
-# reviews_corpus = reviews_corpus.encode('ascii', 'ignore')
-# reviews_corpus = reviews_corpus.decode("utf-8")
-
-# #This would be coming from the loop i'll eventually create when I refactor the code
-# reviews_json['id'] = '1185'                  
-# reviews_json['text'] = reviews_corpus
-
-# # print review_json
-# test = dumps(reviews_json)
-# # print type(test)
-# sys.stdout=open('reviews.json',"w")
-# print test
-# sys.stdout.close()
-# sys.stdout = sys.__stdout__
-
-# print "START TEXT RANK"
-
-# #ideally want to pass in reviews.json but have hardcoded to accomodate the QUEUE
-
-# pytextrank_results = pytextrank.all_steps()     #This is a dictionary with 2 keys
-# print "END TEXT RANK"
-
-
-# pytextrank_keywords=pytextrank_results['keywords'].split(',') 
-# for keyword in pytextrank_keywords:
-#     if '.' not in keyword:
-#         keyword = keyword.strip().lower()
-#         print keyword
-
-
-# #Check if the keyword exists. 
-#         key_exist_check = Keyword.query.filter_by(keyword=keyword)
-
-        
-#         if key_exist_check.first(): 
-#     # if exists, get the keyword id from the keyword table
-            
-#             print "exists"
-#     # if doesnt exist. First add it to the keyword table
-#         else:
-
-#             new_keyword = Keyword(keyword = keyword)
-#             db.session.add(new_keyword)
-#             db.session.commit()
-#             print "Doesnt exist so added: ",keyword
-
-
-# #THEN- add the keyword to the BK table along with how many times? 
-# # FIGURE OUT THE BEST WAY TO PULL THE COUNT
-
-#         keyword_id = Keyword.query.filter_by(keyword=keyword).first().keyword_id
-#         categorykeyword_entry = CategoryKeyword(keyword_id=keyword_id,
-#                                                 category_id=1185,
-#                                                 keyword_count=20)
-
-#         db.session.add(categorykeyword_entry)
-#         db.session.commit()
-
-        # print keyword_id, keyword
-
-
-# ##############################################################################
-# # Helper functions
-
-
-
-
-

@@ -1,0 +1,140 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+    <script src="https://code.jquery.com/jquery.js"></script>
+  <body ng-app="picSelect" ng-controller="picController as ps" >
+<!--     <label>Name:</label>
+    <input type="text" data-ng-model="yourName" placeholder="Enter a name here">
+    <hr>
+    <h1>Hello {{yourName|angular}}!</h1>
+ -->
+
+<div id="content">
+    <h1>Hellow picture selection page!</h1>
+
+
+    <p id="location">You want places in : {{ ps.location | angular }}</p>
+
+    <p id="category">{{ ps.pic1 | angular }}</p>
+    <!-- <img height=150 width=150 ng-src="{{ ps.pic1 | angular }}"/> -->
+    <section id="picgallery">
+        <form>
+        <img height=150 width=150 id="pic1" src=""/>
+        <input class="finalpicks" type="checkbox" id="cbox1" value="">
+
+        <img height=150 width=150 id="pic2" src=""/>
+        <input class="finalpicks" type="checkbox" id="cbox2" value="">
+
+        <img height=150 width=150 id="pic3" src=""/>
+        <input class="finalpicks" type="checkbox" id="cbox3" value=""><br>
+
+        <img height=150 width=150 id="pic4" src=""/>   
+        <input class="finalpicks" type="checkbox" id="cbox4" value="">
+
+        <img height=150 width=150 id="pic5" src=""/>
+        <input class="finalpicks" type="checkbox" id="cbox5" value="">
+
+        <img height=150 width=150 id="pic6" src=""/>    
+        <input class="finalpicks" type="checkbox" id="cbox6" value=""><br>
+        <!-- <img height=150 width=150 ng-src="{{ ps.pic1 | angular }}"/> -->
+        <img height=150 width=150 id="pic7" src=""/>
+        <input class="finalpicks" type="checkbox" id="cbox7" value="">
+
+        <img height=150 width=150 id="pic8" src=""/>
+        <input class="finalpicks" type="checkbox" id="cbox8" value="">
+
+        <img height=150 width=150 id="pic9" src=""/>
+        <input class="finalpicks" type="checkbox" id="cbox9" value=""><br>
+
+        <img height=150 width=150 id="pic10" src=""/>   
+        <input class="finalpicks" type="checkbox" id="cbox10" value="">
+
+        <img height=150 width=150 id="pic11" src=""/>
+        <input class="finalpicks" type="checkbox" id="cbox11" value="">
+
+        <img height=150 width=150 id="pic12" src=""/>    
+        <input class="finalpicks" type="checkbox" id="cbox12" value=""><br>
+
+        <button type="button" id="chosen_pics">Show Me!</button>
+         <!-- <img data-ng-src={{ ps.pic2 | angular }}> -->
+        </form>
+    </section>
+
+</div>
+
+
+ 
+ <script>
+ "use strict";
+
+var picResults = function printYay(results){
+    console.log("yay");
+    console.log(results);
+    createPicTags(results)
+};
+
+var returnOptions = {
+    
+    location : $('#state').val(),
+    category : $('#search-category').val()
+
+    
+};
+
+$.get('/pics_restaurants.json', returnOptions, picResults );
+</script>
+<script>
+
+    var item;
+    function createPicTags(results){
+        var i=0;
+        for (item in results) {
+        i++
+        console.log(results[item]['picture']);
+        console.log(item)
+        $("#pic"+i).attr('src', results[item]['picture'])
+
+        $("#cbox"+i).attr('value', item)
+
+
+    }
+}
+</script>
+
+<script>
+// Create list on submission of page
+
+var countChecked = function() {
+  var n = $( "input:checked" ).val();
+  console.log(n)
+};
+
+
+$( '#chosen_pics' ).on( "click", countChecked );
+
+</script>
+
+
+
+<script type="text/javascript">
+angular.module('picSelect', [])
+
+    // .provider('picObject', xx)
+
+    .controller('picController', ['$scope',  function ($scope, picObject) {
+         var self = this;
+         self.location = picResults;
+         self.pic1 = "http://i.imgur.com/gigoUxn.jpg";
+         self.pic2 = "/Users/Dena/src/Project/YelpMe/Data/ZZzuWwTsjoWN-PuO7HyLCw.jpg";
+
+    }]);
+</script>
+
+
+
+  </body>
+</html>
+
+
+{% endblock %}
