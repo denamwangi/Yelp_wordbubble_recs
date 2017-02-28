@@ -1,78 +1,37 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDM8o4QXXEl_KvhpVuTL9S5OV-47bqQa80&callback=initMap" async defer></script>
-    <style>
-        text {
-            text-anchor: middle;
-            fill: white;
-            font-family: sans-serif;
-            font-weight: bold;
-        }
 
-        rect {
-            fill: none;
-            stroke: black;
-        }
-    </style>
+
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDM8o4QXXEl_KvhpVuTL9S5OV-47bqQa80&callback=initMap" async defer></script>
+    <script src="static/js/google_map.js"></script>
+    <script src="https://d3js.org/d3.v3.min.js"></script>
+    <script src="static/js/d3_bubbles.js"></script>
+    
+
+
 
 
     <h2> Hi from the results page!! </h2>
     <p id="headline">  <p/>
 
 
-    <div id="map"></div>
+    <div id="map"></div></br>
+
+    <form action="/selected" id="results"></form>
 
 
-
-
-
-    <form action="/selected" id="results">
-
-        <button type="submit" id="chosen_pics" >Show Me!</button >
-
-    </form>
-
-
-
-
-
-
-
-
-
-<!-- Get the data using ajax -->
     <script>
-    var map;
-
-    // var centerMapinit = new google.maps.LatLng(40.64317, -79.4066254);
-    function initMap(centerMap={lat: 43.64317, lng: -79.4066254}) {
-        // var centerMap = {lat: 43.64317, lng: -79.4066254}; 
-        // var centerMap = new google.maps.LatLng(40.64317, -79.4066254);
-        console.log('init map has been called');
-        // debugger;
-          
-        map = new google.maps.Map(document.getElementById('map'), {
-          center: centerMap,
-          zoom: 10,
-        });
-
-        // addMarker();
-
-      }
-
-
         function showResults(results){
                         console.log("yay");
                         console.log(results);
                         businesses = results;
+
                         addDivs(businesses);
                         addMarker(businesses);
         };
 
-      // WHY DOESNT THIS WORK?  
-    // var location = $('#state').val();
-    // var category = $('#search-category').val();
+
         var searchParams = {
             location : $('#state').val(),
             category : $('#search-category').val()
@@ -81,104 +40,33 @@
         $.get('/restaurants_search.json', searchParams, showResults );
 
         function addDivs(businesses){
+            var sum_lats=0;
+            var sum_lngs=0;
+            var cnt_elems =0;
                 for (var business in businesses) {
-                    $('#results').prepend('<div class="business details" id="'+business+
+                    $('#results').append('<div class="business details" id="'+business+
                                     '">'+ businesses[business]['name']+'</div></br>')
+                    $('#results').append('<div class="business_bubbles" id=bubbles'+business+
+                                    '></div></br>')
 
+
+                    multiD3(businesses[business]['nlp_keywords'], "bubbles"+business);
                     $('#'+business).append('<p>'+businesses[business]['nlp_summary']+'</p></br>')
                 
-                    $('#results').prepend('<input class="finalpicks"  type="checkbox" value="'+businesses[business]['business_id'] +'" name=cbox_'+business +'>')
+                    $('#results').append('<input class="finalpicks"  type="checkbox" value="'+businesses[business]['business_id'] +'" name=cbox_'+business +'>')
+
+                    sum_lats+=businesses[business]['latitude']
+                    sum_lngs+=businesses[business]['longitude']
+                    cnt_elems++
+
             }
+            $('#results').append('<button type="submit" id="chosen_biz" >Show Me!</button >')
+            console.log((sum_lats/cnt_elems),( sum_lngs/cnt_elems))
+            initMap(centerMap={lat: (sum_lats/cnt_elems), lng: ( sum_lngs/cnt_elems)})
         }
-
-
-// Helper functions for creating the map above. They take in data from teh json and pull whats needed to add data to the map
-
-    function addMarker(businesses){
-      // Adds the markers for each restaurant and adds an info window to each. First pulls the lat, longs and other info from the json then formats it for 
-      // google maps, and  creates an info window
-            
-         // 1) Pull the data and iterate over each business' json
-            for (var business in businesses) { 
-                latitude = businesses[business]['latitude']
-                longitude = businesses[business]['longitude']
-                var markerInfo = businesses[business]['name']+ ' ('+businesses[business]['stars']+')'
-                var location = {lat: latitude, lng: longitude};
-
-
-          // 2)  Create the actual marker
-                newMarker= formatMarker(location);
-
-          // Add the info window on each marker
-                addInfoWindow(newMarker, markerInfo )
-
-
-        }
-    }
-
-
-    function formatMarker(myLatLng) {
-      // Creates the actual google maps object that will be added to the map
-      var marker = new google.maps.Marker({
-              position: myLatLng,
-              map: map,
-            });
-      
-        return marker; 
-      }
-
-    function addInfoWindow(marker, markerInfo) {
-    //Creates an info window that will display the name of the restaurant (or number?)
-
-        var contentString = '<div id="content">' +
-          '<p>'+markerInfo+'</p>' +
-          '</div>';
-
-        var infoWindow = new google.maps.InfoWindow({
-          content: contentString,
-          maxWidth: 100
-        });
-
-        marker.addListener('mouseover', function() {
-          infoWindow.open(map, marker);
-        });
-        marker.addListener('mouseout', function() {
-          infoWindow.open(map, marker);
-        });
-    }
-
     </script>
-<!-- Give each restaurant a div of its own -->
+
 
 {% endblock %}
 
 
-    <!-- <p> D3 experiment </p> -->
-<!--     <svg height="150" width="470">
-        <g transform="translate(0, 0)"></g>
-        <g transform="translate(160, 0)"></g>
-        <g transform="translate(320, 0)"></g>
-    </svg> -->
-<script>
-
-    // groups = d3.selectAll("g");
-
-    // groups.data([
-    //     {"name": "Marketing", "headcount": 65},
-    //     {"name": "Sales", "headcount": 50},
-    //     {"name": "Quality", "headcount": 40}
-    // ]);
-
-    // groups.append("rect")
-    //         .attr("width", 150)
-    //         .attr("height", 150);
-    // groups.append("circle")
-    //         .attr("cx", 75)
-    //         .attr("cy", 75)
-    //         .attr("r", function (d) { return d.headcount; });
-    // groups.append("text")
-    //         .attr("x", 75)
-    //         .attr("y", 75)
-    //         .attr("dy", "0.35em")
-          // .text(function(d) { return d.name } )
-    </script>

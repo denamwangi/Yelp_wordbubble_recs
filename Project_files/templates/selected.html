@@ -1,19 +1,33 @@
 {% extends 'base.html' %}
 
 {% block content %}
+
+
 <h1> Welcome to the selected page! </h1>
-{{ final_pick }}
 
 
 
+    <div id="map"></div>
+<script src="static/js/google_map.js"> </script>
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDM8o4QXXEl_KvhpVuTL9S5OV-47bqQa80&callback=initMap2" async defer>
 
+</script>
+<script>console.log('Success1')</script>
 
-
-
+<script>console.log('Success2')</script>
 <script>
-// var now = $('#test').val();
-// console.log(x);
-var str = $( "#test" ).serialize();
+// $.get("/selected", function(res){ console.log(res)})
+function initMap2(){
+    var final_pick_display = {{final_pick | tojson}};
+    console.log(final_pick_display)
+    var latitude = final_pick_display['latitude'];
+    var longitude = final_pick_display['longitude'];
+    var location = {lat: latitude, lng: longitude}
+    console.log(latitude, longitude)
+    initMap(centerMap=location, zoom=12);
+    formatMarker(location);
+
+}
 
 </script>
 
