@@ -8,10 +8,10 @@
 
 <form action="/results" method="GET"  id="search-form" >
     Location:
-        <select name="state" id="state">
-            {% for state in states %}
+        <select name="city" id="city">
+            {% for city in cities %}
                 
-               <option value= {{ state[0] }}> {{ state[0] }} </option>
+               <option value= {{ city }}> {{ city }} </option>
                 
             {% endfor %}
         </select>

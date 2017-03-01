@@ -4,12 +4,29 @@
 
 
 <h1> Welcome to the selected page! </h1>
+<div id="map"></div></br>
+
+<div id="directionsPanel" style="float:right;width:30%;height 50%"></div>
+
+
+<span style="font-size:100%;color:yellow;">&starf;</span>
+
+<span id= 'name_stars'> Name: {{final_pick['name']  }}</span>
+<p> Phone : {{final_pick['name']  }} </p>
+
+
+<form id="addr_form" >
+Start Point: <input id="dir_test" type="text"> 
+<input type="submit">
+
+</form>
+<script>
 
 
 
-    <div id="map"></div>
+</script>
+
 <script src="static/js/google_map.js"> </script>
-<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDM8o4QXXEl_KvhpVuTL9S5OV-47bqQa80&callback=initMap2" async defer>
 
 </script>
 <script>console.log('Success1')</script>
@@ -17,18 +34,80 @@
 <script>console.log('Success2')</script>
 <script>
 // $.get("/selected", function(res){ console.log(res)})
-function initMap2(){
-    var final_pick_display = {{final_pick | tojson}};
-    console.log(final_pick_display)
-    var latitude = final_pick_display['latitude'];
-    var longitude = final_pick_display['longitude'];
-    var location = {lat: latitude, lng: longitude}
-    console.log(latitude, longitude)
-    initMap(centerMap=location, zoom=12);
-    formatMarker(location);
+var final_pick_display = {{final_pick | tojson}};
 
-}
+
+
+// for (var i=0; i< final_pick_display['stars']; i++;) {
+//     console.log(i)
+// }
 
 </script>
+
+
+    <script>
+function initMap4() {
+    var map;
+     var latitude = final_pick_display['latitude'];
+    var longitude = final_pick_display['longitude'];
+    var location = {lat: latitude, lng: longitude};
+
+   
+      function initMap3() {
+        var directionsDisplay;
+        var directionsService = new google.maps.DirectionsService;
+        var directionsDisplay = new google.maps.DirectionsRenderer;
+        var map = new google.maps.Map(document.getElementById('map'), {
+          zoom: 7,
+          center: location
+        });
+
+ 
+      // Creates the actual google maps object that will be added to the map
+      var marker = new google.maps.Marker({
+              position: location,
+              map: map,
+            });
+      
+
+      
+
+        directionsDisplay.setMap(map);
+        directionsDisplay.setPanel(document.getElementById('directionsPanel'));
+
+        var onChangeHandler = function() {
+          calculateAndDisplayRoute(directionsService, directionsDisplay);
+        };
+
+        $("#addr_form").on("submit", onChangeHandler)
+
+
+      }
+
+
+      function calculateAndDisplayRoute(directionsService, directionsDisplay) {
+        directionsService.route({
+          origin: $("#dir_test").val(),
+          destination: '"'+final_pick_display['latitude']+','+final_pick_display['longitude']+'"',
+          travelMode: 'DRIVING'
+        }, function(response, status) {
+          if (status === 'OK') {
+            directionsDisplay.setDirections(response);
+          } else {
+            window.alert('Directions request failed due to ' + status);
+          }
+        });
+      }
+    initMap3()
+    // formatMarker(location);
+    // debugger;
+    console.log(location)
+}
+    </script>
+
+    <script async defer
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDM8o4QXXEl_KvhpVuTL9S5OV-47bqQa80&callback=initMap4">
+
+    </script>
 
 {% endblock %}

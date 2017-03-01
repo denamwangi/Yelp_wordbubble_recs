@@ -28,8 +28,8 @@ def index():
     states = db.session.query(BCL.state).group_by(BCL.state).all()
     print "THIS IS THE OUTPUT FOR states: "
     print states
-
-    return render_template("homepage.html", states=states)
+    cities = ["Toronto", "Las Vegas"]
+    return render_template("homepage.html", cities=cities)
 
 ### ROUTE THAT SEARCHES DATABASE ADN RETURNS JSON OF POTENTIAL RESTAURANTS
 
@@ -136,7 +136,7 @@ def results():
                                   filter_by(business_id=business_id).\
                                   group_by(Business.business_id).first()
     
-    final_pick['business_id']=business_id
+    final_pick['business_id']=business.business_id
     final_pick['name']=business.name
     final_pick['latitude']=business.latitude
     final_pick['longitude']=business.longitude
