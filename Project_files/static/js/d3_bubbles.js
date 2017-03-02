@@ -2,7 +2,7 @@ var width = 500,
     height = 300,
     padding = 8, // separation between same-color nodes
     clusterPadding = 6, // separation between different-color nodes
-    maxRadius = 20;
+    maxRadius = 10;
 
 var color = d3.scale.ordinal()
       .range(["#E4002B", "#7A99AC"]);
@@ -20,7 +20,7 @@ function multiD3(data, div_assign) {
                         d.size = +d.size;
       });
 
-
+    // debugger;
     //unique cluster/group id's
     var cs = [];
     data.forEach(function(d){
@@ -83,11 +83,30 @@ function multiD3(data, div_assign) {
 
 
     function create_nodes(data,node_counter) {
-      var i = cs.indexOf(data[node_counter].group),
+        var unscaled_radius=parseInt(data[node_counter].size);
+        var scale_radius= parseInt(data[node_counter].size);
+        if (unscaled_radius>1000){
+            console.log("Before:",scale_radius);
+            scale_radius=unscaled_radius/50;
+            console.log("After:",scale_radius)
+         }
+        if (unscaled_radius<=20){
+
+            scale_radius=data[node_counter].size*2;
+         }
+        if (unscaled_radius>20 && unscaled_radius<1000 ){
+
+            scale_radius=unscaled_radius/5;
+         }
+         console.log(scale_radius)
+          var i = cs.indexOf(data[node_counter].group),
           r = Math.sqrt((i + 1) / m * -Math.log(Math.random())) * maxRadius,
+          
+
           d = {
             cluster: i,
-            radius: data[node_counter].size*1.5,
+            // radius: data[node_counter].size*1.5,
+            radius: scale_radius,
             text: data[node_counter].text,
             x: Math.cos(i / m * 2 * Math.PI) * 200 + width / 2 + Math.random(),
             y: Math.sin(i / m * 2 * Math.PI) * 200 + height / 2 + Math.random()

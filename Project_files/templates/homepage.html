@@ -4,7 +4,15 @@
 <h1>Homepage</h1>
 <!-- Add a form that asks for the location in a dropdown and a category in a search box -->
 <p>Hellooo World from the homepage!!</p>
-
+<script src="https://d3js.org/d3.v3.min.js"></script>
+<script src="static/js/d3_bubbles.js"></script>
+<script>
+var width = 650,
+    height = 650,
+    padding = 8, // separation between same-color nodes
+    clusterPadding = 6, // separation between different-color nodes
+    maxRadius = 10;
+</script>
 
 <form action="/results" method="GET"  id="search-form" >
     Location:
@@ -21,8 +29,49 @@
     <input type="submit">
 
 </form>
+<div class='cat_bubbles_container'>
+<div id='cat_bubbles'></div>
+</div>
+<script>
+    // function create_nodes(data,node_counter) {
+    //   var i = cs.indexOf(data[node_counter].group),
+    //       r = Math.sqrt((i + 1) / m * -Math.log(Math.random()))/1000 * maxRadius,
+    //       d = {
+    //         cluster: i,
+    //         radius: data[node_counter].size/3000,
+    //         text: data[node_counter].text,
+    //         x: Math.cos(i / m * 2 * Math.PI) * 200 + width / 2 + Math.random(),
+    //         y: Math.sin(i / m * 2 * Math.PI) * 200 + height / 2 + Math.random()
+    //       };
+    //   if (!clusters[i] || (r > clusters[i].radius)) clusters[i] = d;
+    //   return d;
+    // }
+function make_category_bubbles(results){
+    console.log("HEEERE"+results)
+
+
+    // $('#cat_bubbles').append('<div class="business_bubbles" id=bubbles'+business+
+    //                                 '></div></br>')
+    $('#cat_bubbles').remove()
+    $('.cat_bubbles_container').append('<div id="cat_bubbles"></div>')
+
+    multiD3(results, 'cat_bubbles');
+}
+
+function get_weighted_categories(){
+    var search_city_send= {
+
+    search_city : $('#city').val()
+    };
+
+    $.get('/category_count.json', search_city_send, make_category_bubbles)
+}
+
+$("#city").on('change' , get_weighted_categories)
 
 
 
+
+</script>
 
 {% endblock %}

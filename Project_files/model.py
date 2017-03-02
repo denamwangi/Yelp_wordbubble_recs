@@ -257,14 +257,61 @@ class Attribute(db.Model):
                                                               self.attribute_value)
 
 
+# def example_data():
+#     """Example data to be used for testing"""
+#     Business.query.delete()
+#     BusinessCategoryLocation.query.delete()
+#     Keyword.query.delete()
+#     BusinessKeyword.query.delete()
+
+#     business = Business(business_id="asdjhgsdfiu1234jfb",
+#                         name="Dena's Deli",
+#                         address="123 Main St.",
+#                         latitude=37.7886679,
+#                         longitude=-122.4114987,
+#                         stars=5.0,
+#                         review_count=12303,
+#                         is_open=1)
+
+#     kw = Keyword(keyword = "hipster")
+#     kw2 = Keyword(keyword = "sunny")
+
+#     bkw = BusinessKeyword(business_id="asdjhgsdfiu1234jfb",
+#                             keyword_id=1,
+#                             keyword_count=15)
+#     bkw2 = BusinessKeyword(business_id="asdjhgsdfiu1234jfb",
+#                             keyword_id=2,
+#                             keyword_count=25)
+#     loc = Location(city="San Francisco",
+#                         state="CA",
+#                         city_id=1)
+#     category = Category(category="Dinner", category_id=1)
+
+#     bcl = BusinessCategoryLocation(business_id="asdjhgsdfiu1234jfb",
+#                                     city="San Francisco",
+#                                     state="CA",
+#                                     category="Dinner")
+
+#     db.session.add(business) 
+#     db.session.add(kw)
+#     db.session.add(kw2)  
+#     db.session.add(bkw)
+#     db.session.add(bkw2) 
+#     db.session.add(loc)
+#     db.session.add(category, bcl)
+#     # db.session.add(business)
+#     db.session.commit()
+
+
 ##############################################################################
 # Helper functions
 
-def connect_to_db(app):
+def connect_to_db(app, db_uri=None):
     """Connect the database to our Flask app."""
 
     # Configure to use our database.
     app.config['SQLALCHEMY_DATABASE_URI'] = 'postgres:///yelp'
+    # app.config['SQLALCHEMY_DATABASE_URI'] = 'postgres:///testdb'
     app.config['SQLALCHEMY_ECHO'] = False
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     db.app = app

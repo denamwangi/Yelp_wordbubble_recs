@@ -10,6 +10,8 @@ from model import BusinessCategoryLocation as BCL
 from random import choice, sample
 import sys
 import os
+from sqlalchemy import func
+from sqlalchemy.sql import label
 app = Flask(__name__)
 app.secret_key = "ABC"
 app.jinja_env.undefined = StrictUndefined
@@ -17,7 +19,7 @@ Triangle(app)
 
 
 google_api_key= os.environ['GOOGLE_MAPS_API_KEY']
-print "GOOGLE KEY", google_api_key
+twilio_api_key= os.environ['TWILIO_API_KEY']
 
 ### ROUTE FOR HOME PAGE. 
 ###             FEATURE: SEARCH BAR - CATEGORY AND LOCATION
@@ -25,19 +27,55 @@ print "GOOGLE KEY", google_api_key
 def index():
     """Homepage."""
 
-    states = db.session.query(BCL.state).group_by(BCL.state).all()
-    print "THIS IS THE OUTPUT FOR states: "
-    print states
-    cities = ["Toronto", "Las Vegas"]
+    states = (db.session.query(BCL.city, BCL.category, 
+        label('cat_count', func.count(BCL.category))).
+        group_by(BCL.city, BCL.category).all())    
+    # print "THIS IS THE OUTPUT FOR states: "
+    # print states
+    cities = ["Las Vegas", "Toronto", "Phoenix", "Charlotte", "Montreal", "Pittsburgh"]
+
     return render_template("homepage.html", cities=cities)
 
-### ROUTE THAT SEARCHES DATABASE ADN RETURNS JSON OF POTENTIAL RESTAURANTS
+@app.route('/category_count.json')
+def category_count():
+    """Returns a list of tuples with category counts."""
+
+    # category_weighted = db.session.execute('SELECT * FROM category_counts_by_city WHERE count>1').fetchall()
+    # print category_weighted
+    category_weighted  = (db.session.query(BCL.city, BCL.category, 
+        label('cat_count', func.count(BCL.category))).
+        group_by(BCL.city, BCL.category).all())   
+    city = request.args.get("search_city")
+    # city = 'Toronto'
+    print "CITY IS" ,city
+    category_count_list=[]
+    i=0
+    for each_item in category_weighted :
+        city_server = each_item[0]
+        category_name = each_item[1]
+        category_count = each_item[2]
+        if city_server==city and category_count>1:
+            i+=1
+
+            cat_obj= {"text": category_name,
+                        "size" : category_count,
+                        "group": "1"}
+            category_count_list.append(cat_obj)
+
+    # import pdb; pdb.set_trace()
+    print "CATEGORY IS", type(category_count_list)
+    
+    return jsonify(category_count_list)
+
+    
+
+### ROUTE THAT SEARCHES DATABASE AND RETURNS JSON OF POTENTIAL RESTAURANTS
 
 @app.route('/restaurants_search.json', methods=['GET'] )
 def restaurant_pics():
     """search database and return search results in json"""
 
-    state = request.args.get("state")
+    city = request.args.get("city")
     category = request.args.get("category")
 
     businesses = db.session.query(Business).\
@@ -101,27 +139,6 @@ def keyword_choice():
 
     return render_template("results.html", google_api_key = google_api_key)
 
-# @app.route('/selected.json')
-# def selected_json():
-#     """Selected restaurant json with helpful information """
-#     final_pick={}
-#     form_results=request.args.get.im_self
-#     for each_chosen in form_results.keys():
-#         business_id=form_results[each_chosen]
-#     business = db.session.query(Business).\
-#                                   join(BCL).\
-#                                   filter_by(business_id=business_id).\
-#                                   group_by(Business.business_id).first()
-    
-#     final_pick['business_id']=business_id
-#     final_pick['name']=business.name
-#     final_pick['latitude']=business.latitude
-#     final_pick['longitude']=business.longitude
-#     final_pick['stars']=business.stars
-#     redirect('/selected')
-#     return jsonify(final_pick)
-
-    # return render_template("selected.html", final_pick = final_pick)
 
 @app.route('/selected')
 def results():
@@ -148,11 +165,18 @@ def results():
                             final_pick=final_pick, 
                             google_api_key = google_api_key)
 
+@app.route('/twilio.json')
+def twilio_request():
+    """Text me the results."""
+
+
+
 
 if __name__ == "__main__":
     app.debug = True
     app.jinja_env.auto_reload = app.debug  # make sure templates, etc. are not cached in debug mode
     connect_to_db(app)
+    db.create_all(app=app)
     DebugToolbarExtension(app)
     app.run(port=5000, host='0.0.0.0')
 
