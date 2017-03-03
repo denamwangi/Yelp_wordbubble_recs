@@ -30,8 +30,7 @@ def index():
     states = (db.session.query(BCL.city, BCL.category, 
         label('cat_count', func.count(BCL.category))).
         group_by(BCL.city, BCL.category).all())    
-    # print "THIS IS THE OUTPUT FOR states: "
-    # print states
+
     cities = ["Las Vegas", "Toronto", "Phoenix", "Charlotte", "Montreal", "Pittsburgh"]
 
     return render_template("homepage.html", cities=cities)
@@ -59,7 +58,7 @@ def category_count():
 
             cat_obj= {"text": category_name,
                         "size" : category_count,
-                        "group": "1"}
+                        "group": "2"}
             category_count_list.append(cat_obj)
 
     # import pdb; pdb.set_trace()
@@ -98,11 +97,6 @@ def restaurant_pics():
             kw_obj = {"text": keyword_object.keyword,
                         "size" : "20",
                         "group": "1"}
-
-
-
-
-
 
             nlp_keywords.append(kw_obj)
         nlp_summary = business.summary[0].summary
@@ -167,7 +161,7 @@ def results():
 
 @app.route('/twilio.json')
 def twilio_request():
-    """Text me the results."""
+    """Texts users the results."""
 
 
 

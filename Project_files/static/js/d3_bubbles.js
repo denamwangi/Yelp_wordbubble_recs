@@ -1,5 +1,5 @@
 var width = 500,
-    height = 300,
+    height = 500,
     padding = 8, // separation between same-color nodes
     clusterPadding = 6, // separation between different-color nodes
     maxRadius = 10;
@@ -72,7 +72,8 @@ function multiD3(data, div_assign) {
           .text(function(d) {
             var splitText= d.text.split(" ", 2);
             if (splitText[1]) {
-                return splitText[0] + "\n"+splitText[1];
+                // return splitText[0] + "\n"+splitText[1];
+                return splitText[0] +splitText[1];
             } else {
                 return splitText[0];
             }

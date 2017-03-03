@@ -12,7 +12,7 @@
 
 
 
-    <h2> Hi from the results page!! </h2>
+    <h2> Results </h2>
     <p id="headline">  <p/>
 
 
@@ -45,7 +45,7 @@
             var cnt_elems =0;
                 for (var business in businesses) {
                     $('#results').append('<div class="business details" id="'+business+
-                                    '">'+ businesses[business]['name']+'</div></br>')
+                                    '">'+ businesses[business]['name']+' '+businesses[business]['stars']+' stars </div></br>')
                     $('#results').append('<div class="business_bubbles" id=bubbles'+business+
                                     '></div></br>')
 
