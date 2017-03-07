@@ -5,7 +5,7 @@ var width = 500,
     maxRadius = 10;
 
 var color = d3.scale.ordinal()
-      .range(["#E4002B", "#7A99AC"]);
+      .range([ "#d9534f", "#E4002B",  "#7A99AC"]);
 
 
 // Loop through the array of keyword items (each is a string) and 
@@ -73,7 +73,7 @@ function multiD3(data, div_assign) {
             var splitText= d.text.split(" ", 2);
             if (splitText[1]) {
                 // return splitText[0] + "\n"+splitText[1];
-                return splitText[0] +splitText[1];
+                return splitText[0] +' '+splitText[1];
             } else {
                 return splitText[0];
             }

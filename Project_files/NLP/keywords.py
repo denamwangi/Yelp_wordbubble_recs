@@ -27,7 +27,7 @@ if __name__ == "__main__":
 # Will do this for all cities but going to start with Toronto
 businesses = (db.session.query(Review.business_id).
               join(BusinessCategoryLocation, Review.business_id == BusinessCategoryLocation.business_id).
-              filter_by(city='Las Vegas').
+              filter_by(city='Toronto').
               group_by(Review.business_id).all())
 print "HEEEEERE", businesses
 i = 0

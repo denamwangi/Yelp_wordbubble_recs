@@ -8,23 +8,67 @@
     <script src="https://d3js.org/d3.v3.min.js"></script>
     <script src="static/js/d3_bubbles.js"></script>
     
+    <style>
 
 
+    body {
+  background: url(../static/img/green_salad.jpg) no-repeat center center;
+  background-size: cover;
+
+}
+            html, body {
+              width: 100%;
+              height: 100%;
+              
+            }
+          /*body { background: black; }*/
+    </style>
+
+<div class="container_fluid" style="margin-top: 1%;">
+
+    <div class="progress">
+      <div class="progress-bar progress-bar-danger" role="progressbar" aria-valuenow="70"
+      aria-valuemin="0" aria-valuemax="100" style="width:66%">
+        <span class="sr-only">33% Complete</span>
+      </div>
+    </div>
+    <div class="row"
+                <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6 col-md-offset-1 col-lg-offset-1 left" id="results_box"> 
+
+                    <h2> Results </h2>
+                    <div class="col-xs-6 col-sm-6 col-md-6 col-lg-4 left">
+                            <div style="width:450px;height:550px;" id="map">
+                            </div></br>
+                    <button class="btn btn-primary" type="submit" id="chosen_biz">Select one!</button>
+                    </div>
+
+<!-- <button type="submit" id="chosen_biz" >Show Me!</button > -->
 
 
-    <h2> Results </h2>
-    <p id="headline">  <p/>
+                    <div id="results_all">
 
-
-    <div id="map"></div></br>
-
-    <form action="/selected" id="results"></form>
+                        <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6 right">
+                            <form action="/selected" id="results"></form>
+                        </div>       
+                    </div>
+    </div>
+</div>
 
 
     <script>
+    $("#chosen_biz").on('click', function(){$("#results").submit()});
+    
+
+
+var width = 800,
+    height = 475,
+    padding = 8, // separation between same-color nodes
+    clusterPadding = 6, // separation between different-color nodes
+    maxRadius = 10;
+
         function showResults(results){
-                        console.log("yay");
-                        console.log(results);
+                        // console.log("yay");
+                        // console.log(results);
                         businesses = results;
 
                         addDivs(businesses);
@@ -44,28 +88,43 @@
             var sum_lngs=0;
             var cnt_elems =0;
                 for (var business in businesses) {
-                    $('#results').append('<div class="business details" id="'+business+
-                                    '">'+ businesses[business]['name']+' '+businesses[business]['stars']+' stars </div></br>')
-                    $('#results').append('<div class="business_bubbles" id=bubbles'+business+
-                                    '></div></br>')
+                    // $('#results').append('<div class="row">')
+                    // $('#results').append('<div class="business details" id="'+business+
+                    //                 '">'+ businesses[business]['name']+' '+businesses[business]['stars']+' stars </div></br>')
+                    // $('#results').append('<div class="business_bubbles" id=bubbles'+business+
+                    //                 '></div></br>')
 
 
-                    multiD3(businesses[business]['nlp_keywords'], "bubbles"+business);
-                    $('#'+business).append('<p>'+businesses[business]['nlp_summary']+'</p></br>')
+
+
                 
-                    $('#results').append('<input class="finalpicks"  type="checkbox" value="'+businesses[business]['business_id'] +'" name=cbox_'+business +'>')
+                    // $('#results').append('<input class="finalpicks"  type="checkbox" value="'+businesses[business]['business_id'] +'" name=cbox_'+business +'>')
+                    // $('#results').append('</div>')
+
+
+$('#results').append('<div class="row col-xs-12 col-sm-12 col-md-12 col-lg-12 col-lg-offset-1"><span class="business details" id="'+business+
+                    '">'+ businesses[business]['name']+' '+businesses[business]['stars']+' stars </span></div></br><div class="row col-xs-12 col-sm-12 col-md-12 col-lg-12 "><div class="business_bubbles" id=bubbles'+business+'></div></br><input class="finalpicks"  type="checkbox" value="'+businesses[business]['business_id'] +'" name=cbox_'+business +'></div></div>')
+
+                    $('#'+business).append('</br><span>'+businesses[business]['nlp_summary']+'</span></br>')
+    multiD3(businesses[business]['nlp_keywords'], "bubbles"+business);
+
+
+
+    
+
+
 
                     sum_lats+=businesses[business]['latitude']
                     sum_lngs+=businesses[business]['longitude']
                     cnt_elems++
 
             }
-            $('#results').append('<button type="submit" id="chosen_biz" >Show Me!</button >')
+            // $('#results_all').append('<button type="submit" id="chosen_biz" >Show Me!</button >')
             console.log((sum_lats/cnt_elems),( sum_lngs/cnt_elems))
             initMap(centerMap={lat: (sum_lats/cnt_elems), lng: ( sum_lngs/cnt_elems)})
         }
     </script>
-
+</div>
 
 {% endblock %}
 

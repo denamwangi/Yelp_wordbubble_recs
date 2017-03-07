@@ -1,74 +1,103 @@
 {% extends 'base.html' %}
 {% block content %}
-<div class="container" style="margin-top: 8%;">
-<div class="col-md-6 col-md-offset-3">     
-<div class="row">
-    <div class="page-header" class="text-center">
-        <h1>Welcome to Bubble Reccs!</h1>
-        <p class="lead">What would you like to search for?</p>
-    </div>
-<!-- Add a form that asks for the location in a dropdown and a category in a search box -->
-
 <script src="https://d3js.org/d3.v3.min.js"></script>
 <script src="static/js/d3_bubbles.js"></script>
+<style>
+html, body {
+  width: 100%;
+  height: 100%;
+  
+}
+body {
+  background: url(../static/img/green_salad.jpg) no-repeat center center;
+  background-size: cover;
+
+}
+</style>
+
+
+<div class="container_fluid" style="margin-top: 1%;">
+
+    <div class="progress">
+      <div class="progress-bar progress-bar-danger" role="progressbar" aria-valuenow="70"
+      aria-valuemin="0" aria-valuemax="100" style="width:33%">
+        <span class="sr-only">33% Complete</span>
+      </div>
+    </div>
+
+
+    <div class="col-xs-12 col-sm-12 col-md-10 col-lg-10 col-md-offset-1 col-lg-offset-1 left" id="main_box">     
+        <div class="row">
+            <div class="page-header" class="text-center" >
+                <h1>Welcome to Bubble Reccs</h1>
+                <p class="lead">What would you like to search for?</p>
+            </div>
+
+
+
+
+
+            <div class="form-group" >
+                <div class="row col-xs-12 col-sm-12 col-md-8 col-lg-8 col-lg-offset-1 ">    
+                    <form action="/results" method="GET"  id="search-form" >
+                        <label for="city">Location:</label>
+                        <select name="city" id="city" class="form-control">
+              
+                            {% for city in cities %}
+                                
+                               <option value= "{{ city }}"> {{ city }} </option>
+                                
+                            {% endfor %}
+
+                        </select>
+                        </div>  
+
+                        <div class="row col-xs-12 col-sm-12 col-md-8 col-lg-8  col-lg-offset-1 left">
+                            <label for="search-category">Category:</label>
+                            <input class="form-control" name="category" id="search-category"  type="text" >
+                            <input type="submit" class="btn btn-info">
+                        </div> 
+
+                    </form>
+                </div>
+
+
+
+            <div class='cat_bubbles_container'>
+                <div id='cat_bubbles'></div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
-var width = 650,
-    height = 650,
-    padding = 8, // separation between same-color nodes
+var width = 1000,
+    height = 500,
+    padding = 6, // separation between same-color nodes
     clusterPadding = 6, // separation between different-color nodes
-    maxRadius = 10;
-</script>
-<div class="form-group">
-    <form action="/results" method="GET"  id="search-form" >
-        Location:
-            <select name="city" id="city" class="form-control" class="col-xs-6">>
-                {% for city in cities %}
-                    
-                   <option value= "{{ city }}"> {{ city }} </option>
-                    
-                {% endfor %}
-            </select>
+    maxRadius = 5;
 
-        Category: 
-            <input name="category" id="search-category" type="text" >
-        <input type="submit">
+    function make_category_bubbles(results){
+        // Drop and re-add a container that will hold all the bubbles
+        console.log("HEEERE"+results)
+        $('#cat_bubbles').remove()
+        $('.cat_bubbles_container').append('<div class="row"><div id="cat_bubbles"></div><div')
 
-    </form>
-</div>
+        multiD3(results, 'cat_bubbles');
+    }
 
+    function get_weighted_categories(){
+        var search_city_send= {
 
+        search_city : $('#city').val()
 
-<div class='cat_bubbles_container'>
-<div id='cat_bubbles'></div>
-</div>
-<script>
+        };
+        console.log(search_city_send);
+        $.get('/category_count.json', search_city_send, make_category_bubbles)
+    }
 
-function make_category_bubbles(results){
-    // Drop and re-add a container that will hold all the bubbles
-    console.log("HEEERE"+results)
-    $('#cat_bubbles').remove()
-    $('.cat_bubbles_container').append('<div id="cat_bubbles"></div>')
-
-    multiD3(results, 'cat_bubbles');
-}
-
-function get_weighted_categories(){
-    var search_city_send= {
-
-    search_city : $('#city').val()
-
-    };
-    console.log(search_city_send);
-    $.get('/category_count.json', search_city_send, make_category_bubbles)
-}
-
-$("#city").on('change' , get_weighted_categories)
-
-
-
+    $("#city").on('change' , get_weighted_categories)
 
 </script>
-</div>
-</div>
-</div>
+
 {% endblock %}
