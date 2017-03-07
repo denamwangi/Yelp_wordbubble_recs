@@ -1,0 +1,101 @@
+    <link href="https://fonts.googleapis.com/css?family=Comfortaa|PT+Sans|Vollkorn" rel="stylesheet">
+
+
+
+      /* Optional: Makes the sample page fill the window. */
+
+
+
+p, h1, label, h3{
+
+            color: white;
+            font-family: 'Comfortaa', sans-serif;
+}
+
+    #main_box{
+        background: rgba(16, 10, 4, 0.8);
+        height: 95%;
+        line-height: 1.3;
+        position: fixed;
+
+        top: 40px;
+        bottom: 40px;
+        left: 40px;
+        right: 40px;
+        color: white;
+        font-family: 'Comfortaa', sans-serif;
+    }
+    #results_box{
+        background: rgba(16, 10, 4, 0.8);
+        height: 95%;
+        line-height: 1.3;
+        position: fixed;
+
+        top: 40px;
+        bottom: 40px;
+        left: 40px;
+        right: 40px;
+        color: white;
+        font-family: 'Comfortaa', sans-serif;
+    }
+
+    #results_all{
+        height: 80%;
+        top: 40px;
+        bottom: 40px;
+        left: 40px;
+        right: 40px;
+        overflow: auto;
+    }
+        .business_bubbles {
+            font-size: 70%;
+            color: white;
+            font-family: 'PT Sans', sans-serif;
+        }
+
+        .cat_bubbles_container {
+            color: white;
+            font-family: 'Vollkorn', serif;
+        }
+
+      #floating-panel {
+        position: absolute;
+        top: 10px;
+        left: 25%;
+        z-index: 5;
+        background-color: #fff;
+        padding: 5px;
+        border: 1px solid #999;
+        text-align: center;
+        font-family: 'Roboto','sans-serif';
+        line-height: 30px;
+        padding-left: 10px;
+      }
+ 
+      #chosen_biz{
+        color: white;
+        background: #d9534f;
+      }
+
+    #directionsPanel{
+      overflow: auto;
+      height: 350px;
+      font-family: 'Comfortaa', sans-serif;
+      font-size: 50%;
+      color: black;
+    }
+        text {
+            text-anchor: middle;
+            fill: white;
+            color: white;
+            font-family: 'Comfortaa', sans-serif;
+            
+        }
+
+    #lyft, #twilio, #directions{
+        background: #d9534f;
+       
+    }
+    #map {
+        height: 30%;
+    }

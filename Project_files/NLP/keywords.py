@@ -31,8 +31,8 @@ businesses = (db.session.query(Review.business_id).
               group_by(Review.business_id).all())
 print "HEEEEERE", businesses
 i = 0
-BusinessKeyword.query.delete()
-BusinessSummary.query.delete()   
+# BusinessKeyword.query.delete()
+# BusinessSummary.query.delete()   
 for business in businesses:
 
     i += 1

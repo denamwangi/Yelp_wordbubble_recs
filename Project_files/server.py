@@ -31,7 +31,7 @@ def index():
         label('cat_count', func.count(BCL.category))).
         group_by(BCL.city, BCL.category).all())    
 
-    cities = ["Las Vegas", "Toronto", "Phoenix", "Charlotte", "Montreal", "Pittsburgh"]
+    cities = ["Charlotte", "Las Vegas", "Montreal", "Pittsburgh", "Phoenix",  "Toronto"]
 
     return render_template("homepage.html", cities=cities)
 
@@ -62,11 +62,8 @@ def category_count():
             category_count_list.append(cat_obj)
 
     # import pdb; pdb.set_trace()
-    print "CATEGORY IS", type(category_count_list)
-    
+    print "CATEGORY IS", type(category_count_list)   
     return jsonify(category_count_list)
-
-    
 
 ### ROUTE THAT SEARCHES DATABASE AND RETURNS JSON OF POTENTIAL RESTAURANTS
 
@@ -79,7 +76,7 @@ def restaurant_pics():
 
     businesses = db.session.query(Business).\
                                   join(BusinessKeyword, BCL).\
-                                  filter_by(city='Las Vegas').\
+                                  filter_by(city='Toronto').\
                                   group_by(Business.business_id).limit(20).all()
 
     businesses = sample(businesses, 10)
