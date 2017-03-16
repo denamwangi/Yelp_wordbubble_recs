@@ -32,8 +32,8 @@
         <span class="sr-only">33% Complete</span>
       </div>
     </div>
-    <div class="row"
-                <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6 col-md-offset-1 col-lg-offset-1 left" id="results_box"> 
+    <div class="row">
+                <div class="col-xs-10 col-sm-10 col-md-10 col-lg-10 col-md-offset-1 col-lg-offset-1 left" id="results_box"> 
 
                     <h2> Results </h2>
                     <div class="col-xs-6 col-sm-6 col-md-6 col-lg-4 left">
@@ -47,7 +47,7 @@
 
                     <div id="results_all">
 
-                        <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6 right">
+                        <div class="col-xs-6 col-sm-6 col-md-6 col-lg-10 col-md-offset-1 col-lg-offset-1 right" id="results_all_content">
                             <form action="/selected" id="results"></form>
                         </div>       
                     </div>
@@ -56,11 +56,15 @@
 
 
     <script>
-    $("#chosen_biz").on('click', function(){$("#results").submit()});
+    $("#chosen_biz").on('click', function(){
+                                            $("#results").submit()
+
+
+                                            });
     
 
 
-var width = 800,
+var width = 600,
     height = 475,
     padding = 8, // separation between same-color nodes
     clusterPadding = 6, // separation between different-color nodes
@@ -102,10 +106,10 @@ var width = 800,
                     // $('#results').append('</div>')
 
 
-$('#results').append('<div class="row col-xs-12 col-sm-12 col-md-12 col-lg-12 col-lg-offset-1"><span class="business details" id="'+business+
-                    '">'+ businesses[business]['name']+' '+businesses[business]['stars']+' stars </span></div></br><div class="row col-xs-12 col-sm-12 col-md-12 col-lg-12 "><div class="business_bubbles" id=bubbles'+business+'></div></br><input class="finalpicks"  type="checkbox" value="'+businesses[business]['business_id'] +'" name=cbox_'+business +'></div></div>')
+$('#results').append('<div class="col-xs-6 col-sm-6 col-md-12 col-lg-12" id="playah'+business+'"><h3 class="business details" id="'+business+
+                    '">'+ businesses[business]['name']+' '+businesses[business]['stars']+' stars </h3></div></br><div class="col-xs-6 col-sm-6 col-md-12 col-lg-12 "></br><div class="business_bubbles" id=bubbles'+business+'></div></br><input class="finalpicks"  type="checkbox" value="'+businesses[business]['business_id'] +'" name=cbox_'+business +'></div></div>')
 
-                    $('#'+business).append('</br><span>'+businesses[business]['nlp_summary']+'</span></br>')
+                    $('#playah'+business).append('</br><span>'+businesses[business]['nlp_summary']+'</span></br>')
     multiD3(businesses[business]['nlp_keywords'], "bubbles"+business);
 
 

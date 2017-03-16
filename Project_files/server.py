@@ -12,6 +12,9 @@ import sys
 import os
 from sqlalchemy import func
 from sqlalchemy.sql import label
+from twilio.rest import TwilioRestClient
+
+
 app = Flask(__name__)
 app.secret_key = "ABC"
 app.jinja_env.undefined = StrictUndefined
@@ -20,6 +23,10 @@ Triangle(app)
 
 google_api_key= os.environ['GOOGLE_MAPS_API_KEY']
 twilio_api_key= os.environ['TWILIO_API_KEY']
+twilio_acct_sid= os.environ['TWILIO_ACCOUNT_SID']
+twilio_auth_token= os.environ['TWILIO_AUTH_TOKEN']
+twilio_my_phone= os.environ['TWILIO_MY_PHONE']
+
 
 ### ROUTE FOR HOME PAGE. 
 ###             FEATURE: SEARCH BAR - CATEGORY AND LOCATION
@@ -97,12 +104,14 @@ def restaurant_pics():
 
             nlp_keywords.append(kw_obj)
         nlp_summary = business.summary[0].summary
-        # print "HEEEERE",
+        nlp_summary=nlp_summary.split('.')
+        nlp_summary='. '.join(nlp_summary)
+        print "HEEEERE", nlp_summary
         all_lats.append(business.latitude)
         all_lngs.append(business.longitude)
         
  
-        results['option%s' % i] = {"name" : business.name.lower(),
+        results['option%s' % i] = {"name" : business.name,
                                     "business_id" : business.business_id,
                                     "latitude" : business.latitude,
                                     "longitude" : business.longitude,
@@ -159,6 +168,21 @@ def results():
 @app.route('/twilio.json')
 def twilio_request():
     """Texts users the results."""
+    twilio_client = TwilioRestClient(twilio_acct_sid, twilio_auth_token)
+    user_phone = request.args.get("user_phone")
+    business_name= request.args.get("business_name")
+    print type(user_phone), user_phone, twilio_my_phone
+
+    twilio_client.messages.create(
+        to="+1%s" % user_phone,
+        from_= twilio_my_phone,
+        body = "You're all set for %s" % business_name,
+        )
+    message = ["All good"]
+    return jsonify(message)
+
+
+
 
 
 
@@ -168,7 +192,7 @@ if __name__ == "__main__":
     app.jinja_env.auto_reload = app.debug  # make sure templates, etc. are not cached in debug mode
     connect_to_db(app)
     db.create_all(app=app)
-    DebugToolbarExtension(app)
+    # DebugToolbarExtension(app)
     app.run(port=5000, host='0.0.0.0')
 
 

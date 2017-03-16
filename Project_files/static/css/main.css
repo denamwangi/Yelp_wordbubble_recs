@@ -4,9 +4,12 @@
 
       /* Optional: Makes the sample page fill the window. */
 
+.business_details{
+    text-transform: uppercase;
+    font-family: 'Comfortaa', sans-serif;
+}
 
-
-p, h1, label, h3{
+p, h1, label, h3, {
 
             color: white;
             font-family: 'Comfortaa', sans-serif;
@@ -80,9 +83,11 @@ p, h1, label, h3{
     #directionsPanel{
       overflow: auto;
       height: 350px;
+      /*width: 200px;*/
       font-family: 'Comfortaa', sans-serif;
-      font-size: 50%;
+      font-size: 65%;
       color: black;
+      background-color: white;
     }
         text {
             text-anchor: middle;
@@ -91,6 +96,15 @@ p, h1, label, h3{
             font-family: 'Comfortaa', sans-serif;
             
         }
+        text_black {
+
+            color: black;
+            font-family: 'Comfortaa', sans-serif;
+            
+        }
+    #dir_test, #twilio_textme {
+        color: black;
+    }
 
     #lyft, #twilio, #directions{
         background: #d9534f;
