@@ -13,6 +13,7 @@ import os
 from sqlalchemy import func
 from sqlalchemy.sql import label
 from twilio.rest import TwilioRestClient
+from raven.contrib.flask import Sentry
 
 
 app = Flask(__name__)
@@ -26,7 +27,9 @@ twilio_api_key= os.environ['TWILIO_API_KEY']
 twilio_acct_sid= os.environ['TWILIO_ACCOUNT_SID']
 twilio_auth_token= os.environ['TWILIO_AUTH_TOKEN']
 twilio_my_phone= os.environ['TWILIO_MY_PHONE']
+sentry_key= os.environ['SENTRY_KEY']
 
+sentry = Sentry(app, dsn=sentry_key)
 
 ### ROUTE FOR HOME PAGE. 
 ###             FEATURE: SEARCH BAR - CATEGORY AND LOCATION
